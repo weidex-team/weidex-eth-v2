@@ -93,7 +93,7 @@ contract ExchangeStorage is Ownable {
     /**
       * @return return the balance of multiple tokens for certain `user`
       */
-    function getBalance(
+    function getBalances(
         address user,
         address[] memory token
     )
@@ -111,7 +111,7 @@ contract ExchangeStorage is Ownable {
     /**
       * @return return the filled amount of order specified by `orderHash`
       */
-    function getFilled(
+    function getFill(
         bytes32 orderHash
     )
         public
@@ -124,7 +124,7 @@ contract ExchangeStorage is Ownable {
     /**
       * @return return the filled amount of multple orders specified by `orderHash` array
       */
-    function getFilled(
+    function getFills(
         bytes32[] memory orderHash
     )
         public
@@ -141,7 +141,7 @@ contract ExchangeStorage is Ownable {
     /**
       * @return return true(false) if order specified by `orderHash` is(not) cancelled
       */
-    function getCancelled(
+    function getCancel(
         bytes32 orderHash
     )
         public
@@ -154,7 +154,7 @@ contract ExchangeStorage is Ownable {
     /**
       * @return return array of true(false) if orders specified by `orderHash` array are(not) cancelled
       */
-    function getCancelled(
+    function getCancels(
         bytes32[] memory orderHash
     )
         public
