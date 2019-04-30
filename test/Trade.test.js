@@ -1,9 +1,13 @@
+const WeiDexContract = artifacts.require("WeiDex");
+const TokenContract = artifacts.require("SimpleToken");
+
 const {
   constants,
   ether,
   time,
   expectEvent,
-  BN
+  BN,
+  shouldFail
 } = require("openzeppelin-test-helpers");
 
 const { sign } = require("./utils/signer");
@@ -11,10 +15,6 @@ const { sign } = require("./utils/signer");
 const { ZERO_ADDRESS } = constants;
 
 const Deposit = require("./utils/deposit");
-
-const WeiDexContract = artifacts.require("WeiDex");
-
-const TokenContract = artifacts.require("SimpleToken");
 
 contract("WeiDex", function([_, maker, taker]) {
   let contract;
@@ -34,7 +34,7 @@ contract("WeiDex", function([_, maker, taker]) {
       deposit = new Deposit(contract, token);
 
       await deposit.depositEth(taker, ZERO_ADDRESS, "10");
-      await deposit.depositTokens(maker, ZERO_ADDRESS, "100");
+      await deposit.depositTokens(maker, ZERO_ADDRESS, "200");
 
       order = [
         (makerSellAmount = ether("100")),
@@ -92,29 +92,53 @@ contract("WeiDex", function([_, maker, taker]) {
       });
     });
 
-    it("should trade successfully update maker ETH balance", async function() {
+    it("should update maker ETH balance", async function() {
       expect(makerBalanceAfter.eth.toString()).to.be.eq(
         makerBalanceBefore.eth.add(order[2]).toString()
       );
     });
 
-    it("should trade successfully update maker Token balance", async function() {
+    it("should update maker Token balance", async function() {
       const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
       expect(makerBalanceAfter.token.toString()).to.be.eq(
         makerBalanceBefore.token.sub(takerReceivedAmount).toString()
       );
     });
 
-    it("should trade successfully update taker ETH balance", async function() {
+    it("should update taker ETH balance", async function() {
       expect(takerBalanceAfter.eth.toString()).to.be.eq(
         takerBalanceBefore.eth.sub(order[2]).toString()
       );
     });
 
-    it("should trade successfully update taker Token balance", async function() {
+    it("should update taker Token balance", async function() {
       const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
       expect(takerBalanceAfter.token.toString()).to.be.eq(
         takerBalanceBefore.token.add(takerReceivedAmount).toString()
+      );
+    });
+
+    it("should update order status", async function() {
+      const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
+      const result = await contract.getOrderInfo(takerReceivedAmount, order);
+      expect(result["status"]).to.be.eq("5"); // fully filled status
+    });
+
+    it("should fail when signature invalid", async function() {
+      const orderHash = await contract.getPrefixedHash(order);
+      const signature = sign(orderHash) + "6";
+      await shouldFail.reverting.withMessage(
+        contract.trade(order, signature, { from: taker }),
+        "INVALID_SIGNER"
+      );
+    });
+
+    it("should fail when order is filled", async function() {
+      const orderHash = await contract.getPrefixedHash(order);
+      const signature = sign(orderHash);
+      await shouldFail.reverting.withMessage(
+        contract.trade(order, signature, { from: taker }),
+        "INVALID_ORDER"
       );
     });
   });

@@ -1,10 +1,10 @@
+const WeiDexContract = artifacts.require("WeiDex");
+
 const { constants, ether, expectEvent } = require("openzeppelin-test-helpers");
 
 const { ZERO_ADDRESS } = constants;
 
 const Deposit = require("./utils/deposit");
-
-const WeiDexContract = artifacts.require("WeiDex");
 
 contract("WeiDex", function([_, beneficiary, referrer]) {
   const value = "1";

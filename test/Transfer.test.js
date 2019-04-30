@@ -1,3 +1,5 @@
+const WeiDexContract = artifacts.require("WeiDex");
+
 const {
   constants,
   ether,
@@ -5,9 +7,10 @@ const {
   shouldFail,
   BN
 } = require("openzeppelin-test-helpers");
+
 const { ZERO_ADDRESS } = constants;
 
-const WeiDexContract = artifacts.require("WeiDex");
+const Deposit = require("./utils/deposit");
 
 contract("WeiDex", function([_, user, beneficiary]) {
   const depositAmount = ether("1");
@@ -19,13 +22,11 @@ contract("WeiDex", function([_, user, beneficiary]) {
   context("Transfer", async function() {
     before(async function() {
       contract = await WeiDexContract.new();
+      deposit = new Deposit(contract);
     });
 
     it("should transfer successfully", async function() {
-      await contract.deposit(ZERO_ADDRESS, depositAmount, user, beneficiary, {
-        value: depositAmount,
-        from: user
-      });
+      await deposit.depositEth(user, ZERO_ADDRESS, "1");
 
       transferTxResult = await contract.transfer(
         ZERO_ADDRESS,
