@@ -41,7 +41,7 @@ contract LibOrder {
     }
 
     function getHash(Order memory order)
-        internal
+        public
         pure
         returns (bytes32)
     {
@@ -59,7 +59,7 @@ contract LibOrder {
     }
 
     function getPrefixedHash(Order memory order)
-        internal
+        public
         pure
         returns (bytes32)
     {

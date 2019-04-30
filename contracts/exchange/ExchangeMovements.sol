@@ -104,10 +104,9 @@ contract ExchangeMovements is ExchangeStorage {
 
         if (token == address(0x0)) {
             user.transfer(amount);
-            return;
+        } else {
+            require(IERC20(token).transfer(user, amount));
         }
-
-        require(IERC20(token).transfer(user, amount));
 
         emit Withdraw(
             token,

@@ -21,8 +21,10 @@
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
     "chai": "^4.2.0",
+    "ethers": "^4.0.27",
     "i": "^0.3.6",
     "npm": "^6.9.0",
+    "openzeppelin-solidity": "^2.2.0",
     "truffle-typings": "^1.0.6"
   }
 }

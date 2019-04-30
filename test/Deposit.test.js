@@ -1,37 +1,26 @@
-const {
-  balance,
-  BN,
-  constants,
-  ether,
-  expectEvent,
-  shouldFail
-} = require("openzeppelin-test-helpers");
+const { constants, ether, expectEvent } = require("openzeppelin-test-helpers");
+
 const { ZERO_ADDRESS } = constants;
+
+const Deposit = require("./utils/deposit");
 
 const WeiDexContract = artifacts.require("WeiDex");
 
 contract("WeiDex", function([_, beneficiary, referrer]) {
-  const value = ether("1");
+  const value = "1";
+  const depositAmount = ether(value);
 
   let depositTxResult;
   let contract;
 
-  context("Deposit", async function() {
+  context("Deposit Ethers", async function() {
     before(async function() {
       contract = await WeiDexContract.new();
+      deposit = new Deposit(contract);
     });
 
     it("should deposit successfully ethers", async function() {
-      depositTxResult = await contract.deposit(
-        ZERO_ADDRESS,
-        value,
-        beneficiary,
-        referrer,
-        {
-          value: value,
-          from: beneficiary
-        }
-      );
+      depositTxResult = await deposit.depositEth(beneficiary, referrer, value);
     });
 
     it("should emit deposit event successfully", async function() {
@@ -40,14 +29,14 @@ contract("WeiDex", function([_, beneficiary, referrer]) {
         user: beneficiary,
         referral: referrer,
         beneficiary: beneficiary,
-        amount: value,
-        balance: value
+        amount: depositAmount,
+        balance: depositAmount
       });
     });
 
     it("should update balance correctly", async function() {
       const balance = await contract.getBalance(beneficiary, ZERO_ADDRESS);
-      expect(balance.toString()).to.be.eq(value.toString());
+      expect(balance.toString()).to.be.eq(depositAmount.toString());
     });
 
     it("should update referrer correctly", async function() {
