@@ -10,13 +10,13 @@ const {
   shouldFail
 } = require("openzeppelin-test-helpers");
 
-const { sign } = require("./utils/signer");
+const { signMessage } = require("./utils/signer");
 
 const { ZERO_ADDRESS } = constants;
 
 const Deposit = require("./utils/deposit");
 
-contract("WeiDex", function([_, maker, taker]) {
+contract("WeiDex", function ([_, maker, taker]) {
   let contract;
   let token;
   let order;
@@ -26,9 +26,12 @@ contract("WeiDex", function([_, maker, taker]) {
   let takerBalanceAfter;
   let makerBalanceBefore;
   let makerBalanceAfter;
+  let takerReceivedAmount;
+  let orderHash;
+  let signature;
 
-  context("Trade without fees", function() {
-    before(async function() {
+  context("Trade without fees", function () {
+    before(async function () {
       contract = await WeiDexContract.new();
       token = await TokenContract.new();
       deposit = new Deposit(contract, token);
@@ -47,12 +50,13 @@ contract("WeiDex", function([_, maker, taker]) {
         (makerSellToken = token.address),
         (makerBuyToken = ZERO_ADDRESS)
       ];
+      takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
+      orderHash = await contract.getHash(order);
+      signature = await signMessage(maker, orderHash);
+
     });
 
-    it("should trade successfully tokens for ETH", async function() {
-      const orderHash = await contract.getPrefixedHash(order);
-      const signature = sign(orderHash);
-
+    it("should trade successfully tokens for ETH", async function () {
       takerBalanceBefore = {
         eth: await contract.getBalance(taker, ZERO_ADDRESS),
         token: await contract.getBalance(taker, token.address)
@@ -78,12 +82,12 @@ contract("WeiDex", function([_, maker, taker]) {
       };
     });
 
-    it("should emit trade event successfully", async function() {
-      const orderHash = await contract.getPrefixedHash(order);
+    it("should emit trade event successfully", async function () {
+      const prefixedHash = await contract.getPrefixedHash(order);
       expectEvent.inLogs(tradeTxResult.logs, "Trade", {
         makerAddress: maker,
         takerAddress: taker,
-        orderHash: orderHash,
+        orderHash: prefixedHash,
         makerFilledAmount: ether("1"),
         takerFilledAmount: ether("100"),
         takerFeePaid: new BN(0),
@@ -92,50 +96,50 @@ contract("WeiDex", function([_, maker, taker]) {
       });
     });
 
-    it("should update maker ETH balance", async function() {
+    it("should update maker ETH balance", async function () {
       expect(makerBalanceAfter.eth.toString()).to.be.eq(
         makerBalanceBefore.eth.add(order[2]).toString()
       );
     });
 
-    it("should update maker Token balance", async function() {
-      const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
+    it("should update maker Token balance", async function () {
       expect(makerBalanceAfter.token.toString()).to.be.eq(
         makerBalanceBefore.token.sub(takerReceivedAmount).toString()
       );
     });
 
-    it("should update taker ETH balance", async function() {
+    it("should update taker ETH balance", async function () {
       expect(takerBalanceAfter.eth.toString()).to.be.eq(
         takerBalanceBefore.eth.sub(order[2]).toString()
       );
     });
 
-    it("should update taker Token balance", async function() {
-      const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
+    it("should update taker Token balance", async function () {
       expect(takerBalanceAfter.token.toString()).to.be.eq(
         takerBalanceBefore.token.add(takerReceivedAmount).toString()
       );
     });
 
-    it("should update order status", async function() {
-      const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
+    it("should update order status", async function () {
       const result = await contract.getOrderInfo(takerReceivedAmount, order);
       expect(result["status"]).to.be.eq("5"); // fully filled status
     });
 
-    it("should fail when signature invalid", async function() {
-      const orderHash = await contract.getPrefixedHash(order);
-      const signature = sign(orderHash) + "6";
+    it("should update filled status", async function () {
+      const prefixedHash = await contract.getPrefixedHash(order);
+      const result = await contract.getFill(prefixedHash);
+      expect(result.toString()).to.be.eq(order[1].toString()); // fully filled status
+    });
+
+    it("should fail when signature invalid", async function () {
+      const invalidSignature = await signMessage(taker, orderHash);
       await shouldFail.reverting.withMessage(
-        contract.trade(order, signature, { from: taker }),
+        contract.trade(order, invalidSignature, { from: taker }),
         "INVALID_SIGNER"
       );
     });
 
-    it("should fail when order is filled", async function() {
-      const orderHash = await contract.getPrefixedHash(order);
-      const signature = sign(orderHash);
+    it("should fail when order is filled", async function () {
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
         "INVALID_ORDER"
