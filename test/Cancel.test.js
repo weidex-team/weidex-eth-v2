@@ -94,48 +94,5 @@ contract("WeiDex", function ([_, maker, taker]) {
                 "INVALID_ORDER"
             );
         });
-
-        //     it("should update maker Token balance", async function() {
-        //       const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
-        //       expect(makerBalanceAfter.token.toString()).to.be.eq(
-        //         makerBalanceBefore.token.sub(takerReceivedAmount).toString()
-        //       );
-        //     });
-
-        //     it("should update taker ETH balance", async function() {
-        //       expect(takerBalanceAfter.eth.toString()).to.be.eq(
-        //         takerBalanceBefore.eth.sub(order[2]).toString()
-        //       );
-        //     });
-
-        //     it("should update taker Token balance", async function() {
-        //       const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
-        //       expect(takerBalanceAfter.token.toString()).to.be.eq(
-        //         takerBalanceBefore.token.add(takerReceivedAmount).toString()
-        //       );
-        //     });
-
-        //     it("should update order status", async function() {
-        //       const takerReceivedAmount = order[0].mul(order[2]).div(order[1]);
-        //       const result = await contract.getOrderInfo(takerReceivedAmount, order);
-        //       expect(result["status"]).to.be.eq("5"); // fully filled status
-        //     });
-
-        //     it("should update filled status", async function() {
-        //       const orderHash = await contract.getPrefixedHash(order);
-        //       const result = await contract.getFill(orderHash);
-        //       expect(result.toString()).to.be.eq(order[1].toString()); // fully filled status
-        //     });
-
-
-
-        //     it("should fail when order is filled", async function() {
-        //       const orderHash = await contract.getPrefixedHash(order);
-        //       const signature = sign(orderHash);
-        //       await shouldFail.reverting.withMessage(
-        //         contract.trade(order, signature, { from: taker }),
-        //         "INVALID_ORDER"
-        //       );
-        //     });
     });
 });
