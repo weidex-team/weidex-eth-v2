@@ -140,6 +140,8 @@ contract("WeiDex", function ([_, maker, taker]) {
     });
 
     it("should fail when order is filled", async function () {
+      const result = await contract.getOrderInfo(takerReceivedAmount, order);
+      expect(result["status"]).to.be.eq("5"); // fully filled status
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
         "INVALID_ORDER"
