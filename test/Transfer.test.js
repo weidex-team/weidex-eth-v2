@@ -12,20 +12,20 @@ const { ZERO_ADDRESS } = constants;
 
 const Deposit = require("./utils/deposit");
 
-contract("WeiDex", function ([_, user, beneficiary]) {
+contract("WeiDex", function([_, user, beneficiary]) {
   const depositAmount = ether("1");
   const transferAmount = ether("0.5");
 
   let transferTxResult;
   let contract;
 
-  context("Transfer", async function () {
-    before(async function () {
+  context("Transfer", async function() {
+    before(async function() {
       contract = await WeiDexContract.new();
       deposit = new Deposit(contract);
     });
 
-    it("should transfer successfully", async function () {
+    it("should transfer successfully", async function() {
       await deposit.depositEth(user, ZERO_ADDRESS, "1");
 
       transferTxResult = await contract.transfer(
@@ -38,7 +38,7 @@ contract("WeiDex", function ([_, user, beneficiary]) {
       );
     });
 
-    it("should emit transfer event successfully", async function () {
+    it("should emit transfer event successfully", async function() {
       expectEvent.inLogs(transferTxResult.logs, "Transfer", {
         token: ZERO_ADDRESS,
         user: user,
@@ -49,7 +49,7 @@ contract("WeiDex", function ([_, user, beneficiary]) {
       });
     });
 
-    it("should update balance correctly", async function () {
+    it("should update balance correctly", async function() {
       const userBalance = await contract.getBalance(user, ZERO_ADDRESS);
       const beneficiaryBalance = await contract.getBalance(
         beneficiary,
@@ -63,7 +63,7 @@ contract("WeiDex", function ([_, user, beneficiary]) {
       expect(beneficiaryBalance.toString()).to.be.eq(transferAmount.toString());
     });
 
-    it("should fail on unsufficient balance", async function () {
+    it("should fail on unsufficient balance", async function() {
       const currentBalance = await contract.getBalance(user, ZERO_ADDRESS);
       await shouldFail(
         contract.transfer(

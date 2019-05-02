@@ -10,7 +10,7 @@ const {
 
 const Deposit = require("./utils/deposit");
 
-contract("WeiDex", function ([_, beneficiary, referrer]) {
+contract("WeiDex", function([_, beneficiary, referrer]) {
   const value = "1";
   const depositAmount = ether(value);
 
@@ -20,14 +20,14 @@ contract("WeiDex", function ([_, beneficiary, referrer]) {
   let balanceAfterWithdraw;
   let withdrawTxResult;
 
-  context("Withdraw Tokens", async function () {
-    before(async function () {
+  context("Withdraw Tokens", async function() {
+    before(async function() {
       contract = await WeiDexContract.new();
       token = await TokenContract.new();
       deposit = new Deposit(contract, token);
     });
 
-    it("should withdraw successfully ethers", async function () {
+    it("should withdraw successfully ethers", async function() {
       await deposit.depositTokens(beneficiary, referrer, value);
 
       balanceBeforeWithdraw = await contract.getBalance(
@@ -45,7 +45,7 @@ contract("WeiDex", function ([_, beneficiary, referrer]) {
       );
     });
 
-    it("should emit withdraw event successfully", async function () {
+    it("should emit withdraw event successfully", async function() {
       expectEvent.inLogs(withdrawTxResult.logs, "Withdraw", {
         token: token.address,
         user: beneficiary,
@@ -54,13 +54,13 @@ contract("WeiDex", function ([_, beneficiary, referrer]) {
       });
     });
 
-    it("should update balance correctly", async function () {
+    it("should update balance correctly", async function() {
       expect(balanceAfterWithdraw.toString()).to.be.eq(
         balanceBeforeWithdraw.sub(depositAmount).toString()
       );
     });
 
-    it("should fail on unsufficient balance", async function () {
+    it("should fail on unsufficient balance", async function() {
       const currentBalance = await contract.getBalance(
         beneficiary,
         token.address

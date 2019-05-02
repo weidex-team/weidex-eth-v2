@@ -10,7 +10,7 @@ const {
 
 const Deposit = require("./utils/deposit");
 
-contract("WeiDex", function ([_, beneficiary, referrer]) {
+contract("WeiDex", function([_, beneficiary, referrer]) {
   const value = "1";
   const depositAmount = ether(value);
 
@@ -18,14 +18,14 @@ contract("WeiDex", function ([_, beneficiary, referrer]) {
   let contract;
   let token;
 
-  context("Deposit Tokens", async function () {
-    before(async function () {
+  context("Deposit Tokens", async function() {
+    before(async function() {
       contract = await WeiDexContract.new();
       token = await TokenContract.new();
       deposit = new Deposit(contract, token);
     });
 
-    it("should deposit successfully tokens", async function () {
+    it("should deposit successfully tokens", async function() {
       depositTxResult = await deposit.depositTokens(
         beneficiary,
         referrer,
@@ -33,7 +33,7 @@ contract("WeiDex", function ([_, beneficiary, referrer]) {
       );
     });
 
-    it("should emit deposit event successfully", async function () {
+    it("should emit deposit event successfully", async function() {
       expectEvent.inLogs(depositTxResult.logs, "Deposit", {
         token: token.address,
         user: beneficiary,
@@ -44,17 +44,17 @@ contract("WeiDex", function ([_, beneficiary, referrer]) {
       });
     });
 
-    it("should update balance correctly", async function () {
+    it("should update balance correctly", async function() {
       const balance = await contract.getBalance(beneficiary, token.address);
       expect(balance.toString()).to.be.eq(depositAmount.toString());
     });
 
-    it("should update referrer correctly", async function () {
+    it("should update referrer correctly", async function() {
       const referral = await contract.getReferral(beneficiary);
       expect(referral).to.be.eq(referrer);
     });
 
-    it("should fail on unsufficient balance", async function () {
+    it("should fail on unsufficient balance", async function() {
       const currentBalance = await token.balanceOf(beneficiary);
       await shouldFail.reverting(
         contract.deposit(
