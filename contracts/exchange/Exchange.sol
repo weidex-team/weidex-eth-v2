@@ -1,14 +1,14 @@
 pragma solidity >=0.4.22 <0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "../utils/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "../utils/LibMath.sol";
 import "../utils/LibOrder.sol";
 import "../utils/LibSignatureValidator.sol";
 import "./ExchangeStorage.sol";
-import "../utils/SafeMath.sol";
 
-contract Exchange is Ownable, LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
+contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
 
     using SafeMath for uint256;
 

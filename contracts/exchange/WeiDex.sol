@@ -5,14 +5,12 @@ import "./Exchange.sol";
 import "./ExchangeBatchTrade.sol";
 import "./ExchangeMovements.sol";
 import "./ExchangeUpgradability.sol";
-import "./ExchangeOldTokensSupport.sol";
 
 contract WeiDex is
     Exchange,
     ExchangeBatchTrade,
     ExchangeMovements,
-    ExchangeUpgradability,
-    ExchangeOldTokensSupport
+    ExchangeUpgradability
 {
     function () external payable {
         revert("FALLBACK_FAIL");

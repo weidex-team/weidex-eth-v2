@@ -1,13 +1,15 @@
 pragma solidity >=0.4.22 <0.6.0;
 
-import "../utils/Ownable.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 import "./ExchangeStorage.sol";
 import "./interfaces/IExchangeUpgradability.sol";
-import "../token/IERC20.sol";
-import "../utils/SafeMath.sol";
 
 contract ExchangeUpgradability is Ownable, ExchangeStorage {
 
+    using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     /**
@@ -100,10 +102,7 @@ contract ExchangeUpgradability is Ownable, ExchangeStorage {
                 continue;
             }
 
-            require(
-                IERC20(tokenAddress).approve(exchange, tokenAmount),
-                "APPROVE_FAILED"
-            );
+            IERC20(tokenAddress).safeApprove(exchange, tokenAmount);
 
             balances[tokenAddress][user] = 0;
 
@@ -176,10 +175,7 @@ contract ExchangeUpgradability is Ownable, ExchangeStorage {
             "INVALID_VERSION"
         );
 
-        require(
-            IERC20(token).transferFrom(msg.sender, address(this), amount),
-            "TRANSFER_FAILED"
-        );
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         balances[token][user] = balances[token][user].add(amount);
     }

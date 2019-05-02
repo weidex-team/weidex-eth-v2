@@ -3,7 +3,6 @@ pragma experimental ABIEncoderV2;
 
 import "./Exchange.sol";
 
-
 contract ExchangeBatchTrade is Exchange {
 
     /**

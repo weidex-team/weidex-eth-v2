@@ -1,11 +1,11 @@
 pragma solidity >=0.4.22 <0.6.0;
 
+import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "./ExchangeStorage.sol";
-import "../utils/SafeMath.sol";
-import "../token/IERC20.sol";
 
 contract ExchangeMovements is ExchangeStorage {
 
+    using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     /**
@@ -61,10 +61,7 @@ contract ExchangeMovements is ExchangeStorage {
         if(token == address(0x0)) {
             value = msg.value;
         } else {
-            require(
-                IERC20(token).transferFrom(user, address(this), value),
-                "TOKEN_TRANSFER_FAIL"
-            );
+            IERC20(token).safeTransferFrom(user, address(this), value);
         }
 
         balances[token][beneficiary] = balances[token][beneficiary].add(value);
@@ -105,7 +102,7 @@ contract ExchangeMovements is ExchangeStorage {
         if (token == address(0x0)) {
             user.transfer(amount);
         } else {
-            require(IERC20(token).transfer(user, amount));
+            IERC20(token).safeTransfer(user, amount);
         }
 
         emit Withdraw(
