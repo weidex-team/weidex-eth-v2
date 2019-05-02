@@ -23,7 +23,7 @@ contract("WeiDex", function([_, maker, taker]) {
   let firstOrderTakerReceivedAmount;
   let secondOrderTakerReceivedAmount;
 
-  context("Batch trade", function() {
+  context("Batch trade all or revert", function() {
     before(async function() {
       contract = await WeiDexContract.new();
       token = await TokenContract.new();

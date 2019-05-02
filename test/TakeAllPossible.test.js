@@ -25,7 +25,7 @@ contract("WeiDex", function([_, maker, taker]) {
   let validOrderTakerReceivedAmount;
   let invalidOrderTakerReceivedAmount;
 
-  context("Batch trade all or revert failure", function() {
+  context("Batch trade all possible", function() {
     before(async function() {
       contract = await WeiDexContract.new();
 
@@ -53,7 +53,7 @@ contract("WeiDex", function([_, maker, taker]) {
         const validOrderSig = await signMessage(maker, validOrderHash);
         const invalidOrderSig = await signMessage(maker, invalidOrderHash);
         await shouldFail.reverting.withMessage(
-          contract.takeAllOrRevert(
+          contract.takeAllPossible(
             [validOrder, invalidOrder],
             [validOrderSig, invalidOrderSig],
             method,
@@ -66,7 +66,7 @@ contract("WeiDex", function([_, maker, taker]) {
       });
     });
 
-    it("should fail on invalid order", async function() {
+    it("should trade only the valid orders", async function() {
       await contract.allowOrRestrictMethod(
         "0x6db281564fe9547306996d6f77552aebb6a1b3451dd77b0e3cd65337b6741ad2",
         true
@@ -86,16 +86,13 @@ contract("WeiDex", function([_, maker, taker]) {
         token: await contract.getBalance(maker, token.address)
       };
 
-      await shouldFail.reverting.withMessage(
-        contract.takeAllOrRevert(
-          [validOrder, invalidOrder],
-          [validOrderSig, invalidOrderSig],
-          "trade((uint256,uint256,uint256,uint256,uint256,address,address,address,address),bytes)",
-          {
-            from: taker
-          }
-        ),
-        "INVALID_TAKEALL"
+      contract.takeAllPossible(
+        [validOrder, invalidOrder],
+        [validOrderSig, invalidOrderSig],
+        "trade((uint256,uint256,uint256,uint256,uint256,address,address,address,address),bytes)",
+        {
+          from: taker
+        }
       );
 
       takerBalanceAfter = {
@@ -109,47 +106,47 @@ contract("WeiDex", function([_, maker, taker]) {
       };
     });
 
-    it("should not update maker ETH balance", async function() {
+    it("should update maker ETH balance", async function() {
       expect(makerBalanceAfter.eth.toString()).to.be.eq(
-        makerBalanceBefore.eth.toString()
+        makerBalanceBefore.eth.add(validOrder[2]).toString()
       );
     });
 
-    it("should not update maker Token balance", async function() {
+    it("should update maker Token balance", async function() {
       expect(makerBalanceAfter.token.toString()).to.be.eq(
-        makerBalanceBefore.token.toString()
+        makerBalanceBefore.token.sub(validOrderTakerReceivedAmount).toString()
       );
     });
 
-    it("should not update taker ETH balance", async function() {
+    it("should update taker ETH balance", async function() {
       expect(takerBalanceAfter.eth.toString()).to.be.eq(
-        takerBalanceBefore.eth.toString()
+        takerBalanceBefore.eth.sub(validOrder[2]).toString()
       );
     });
 
-    it("should not update taker Token balance", async function() {
+    it("should update taker Token balance", async function() {
       expect(takerBalanceAfter.token.toString()).to.be.eq(
-        takerBalanceBefore.token.toString()
+        takerBalanceBefore.token.add(validOrderTakerReceivedAmount).toString()
       );
     });
 
-    it("should not update orders fill state", async function() {
+    it("should update orders fill state", async function() {
       const validOrderHash = await contract.getPrefixedHash(validOrder);
       const invalidOrderHash = await contract.getPrefixedHash(invalidOrder);
       const result = await contract.getFills([
         validOrderHash,
         invalidOrderHash
       ]);
-      expect(result[0].toString()).to.be.eq("0");
+      expect(result[0].toString()).to.be.eq(validOrder[1].toString());
       expect(result[1].toString()).to.be.eq("0");
     });
 
-    it("should not update orders status", async function() {
+    it("should update orders status", async function() {
       const firstOrderResult = await contract.getOrderInfo(
         validOrderTakerReceivedAmount,
         validOrder
       );
-      expect(firstOrderResult["status"]).to.be.eq("3"); // fillable status
+      expect(firstOrderResult["status"]).to.be.eq("5"); // fillable status
 
       const secondOrderResult = await contract.getOrderInfo(
         invalidOrderTakerReceivedAmount,

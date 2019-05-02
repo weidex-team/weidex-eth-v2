@@ -1,5 +1,5 @@
 const WeiDexContract = artifacts.require("WeiDex");
-const TokenContract = artifacts.require("SimpleToken");
+const TokenContract = artifacts.require("SimpleOldToken");
 
 const {
   ether,
@@ -20,14 +20,14 @@ contract("WeiDex", function([_, beneficiary, referrer]) {
   let balanceAfterWithdraw;
   let withdrawTxResult;
 
-  context("Withdraw Tokens", async function() {
+  context("Withdraw Old Tokens", async function() {
     before(async function() {
       contract = await WeiDexContract.new();
       token = await TokenContract.new();
       deposit = new Deposit(contract, token);
     });
 
-    it("should withdraw successfully tokens", async function() {
+    it("should withdraw successfully old tokens", async function() {
       await deposit.depositTokens(beneficiary, referrer, value);
 
       balanceBeforeWithdraw = await contract.getBalance(
