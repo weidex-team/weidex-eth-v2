@@ -31,8 +31,8 @@ contract LibCrowdsale {
         VALID
     }
 
-    function isValid(Crowdsale memory crowdsale)
-        internal
+    function getCrowdsaleStatus(Crowdsale memory crowdsale)
+        public
         view
         returns (CrowdsaleStatus)
     {

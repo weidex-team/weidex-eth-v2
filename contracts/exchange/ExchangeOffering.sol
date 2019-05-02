@@ -34,8 +34,13 @@ contract ExchangeOffering is ExchangeStorage, LibCrowdsale {
         onlyOwner
     {
         require(
-            CrowdsaleStatus.VALID == isValid(crowdsale),
+            CrowdsaleStatus.VALID == getCrowdsaleStatus(crowdsale),
             "INVALID_CROWDSALE"
+        );
+
+        require(
+            crowdsales[token].wallet == address(0),
+            "CROWDSALE_ALREADY_EXISTS"
         );
 
         IERC20(token).safeTransferFrom(crowdsale.wallet, address(this), crowdsale.hardCap);
