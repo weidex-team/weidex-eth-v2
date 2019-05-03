@@ -9,7 +9,8 @@ import "./ExchangeStorage.sol";
 
 contract ExchangeOffering is ExchangeStorage, LibCrowdsale {
 
-    address constant internal ETH_ADDRESS = address(0);
+    address constant internal BURN_ADDRESS = address(0x000000000000000000000000000000000000dEaD);
+    address constant internal ETH_ADDRESS = address(0x0);
 
     using SafeERC20 for IERC20;
 
@@ -20,10 +21,15 @@ contract ExchangeOffering is ExchangeStorage, LibCrowdsale {
     mapping(address => mapping(address => uint256)) public contributions;
 
     event TokenPurchase(
-        address indexed project,
+        address indexed token,
         address indexed user,
-        uint256 tokens,
+        uint256 tokenAmount,
         uint256 weiAmount
+    );
+
+    event TokenBurned(
+        address indexed token,
+        uint256 tokenAmount
     );
 
     function registerCrowdsale(
@@ -43,7 +49,9 @@ contract ExchangeOffering is ExchangeStorage, LibCrowdsale {
             "CROWDSALE_ALREADY_EXISTS"
         );
 
-        IERC20(token).safeTransferFrom(crowdsale.wallet, address(this), crowdsale.hardCap);
+        uint256 tokenForSale = crowdsale.hardCap.mul(crowdsale.tokenRatio);
+
+        IERC20(token).safeTransferFrom(crowdsale.wallet, address(this), tokenForSale);
 
         crowdsales[token] = crowdsale;
     }
@@ -93,7 +101,9 @@ contract ExchangeOffering is ExchangeStorage, LibCrowdsale {
 
         crowdsales[token].leftAmount = 0;
 
-        IERC20(token).safeTransfer(ETH_ADDRESS, leftAmount);
+        IERC20(token).safeTransfer(BURN_ADDRESS, leftAmount);
+
+        emit TokenBurned(token, leftAmount);
     }
 
     function validContribution(

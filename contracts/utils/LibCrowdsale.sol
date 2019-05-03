@@ -1,7 +1,11 @@
 pragma solidity >=0.4.22 <0.6.0;
 pragma experimental ABIEncoderV2;
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 contract LibCrowdsale {
+
+    using SafeMath for uint256;
 
     struct Crowdsale {
         uint256 startBlock;
@@ -49,7 +53,9 @@ contract LibCrowdsale {
             return CrowdsaleStatus.INVALID_TOKEN_RATIO;
         }
 
-        if(crowdsale.hardCap != crowdsale.leftAmount) {
+        uint256 tokenForSale = crowdsale.hardCap.mul(crowdsale.tokenRatio);
+
+        if(tokenForSale != crowdsale.leftAmount) {
             return CrowdsaleStatus.INVALID_LEFT_AMOUNT;
         }
 
