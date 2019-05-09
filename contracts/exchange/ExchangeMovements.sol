@@ -73,7 +73,7 @@ contract ExchangeMovements is ExchangeStorage {
         emit Deposit(
             token,
             user,
-            referral,
+            referrals[user],
             beneficiary,
             value,
             balances[token][beneficiary]
