@@ -233,6 +233,9 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
     )
         private
     {
+        uint256 makerGiveAmount = orderFill.takerFillAmount.sub(orderFill.makerFeeReceived);
+        uint256 takerFillAmount = orderFill.takerFillAmount.sub(orderFill.takerFeePaid);
+
         address referrer = referrals[order.taker];
         address feeAddress = feeAccount;
 
@@ -240,9 +243,9 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
         balances[order.makerSellToken][feeAddress] = balances[order.makerSellToken][feeAddress].add(orderFill.exchangeFeeReceived);
 
         balances[order.makerBuyToken][order.taker] = balances[order.makerBuyToken][order.taker].sub(orderFill.makerFillAmount);
-        balances[order.makerBuyToken][order.maker] = balances[order.makerBuyToken][order.maker].add(orderFill.makerFillAmount.add(orderFill.makerFeeReceived));
+        balances[order.makerBuyToken][order.maker] = balances[order.makerBuyToken][order.maker].add(orderFill.makerFillAmount);
 
-        balances[order.makerSellToken][order.taker] = balances[order.makerSellToken][order.taker].add(orderFill.takerFillAmount);
-        balances[order.makerSellToken][order.maker] = balances[order.makerSellToken][order.maker].sub(orderFill.takerFillAmount);
+        balances[order.makerSellToken][order.taker] = balances[order.makerSellToken][order.taker].add(takerFillAmount);
+        balances[order.makerSellToken][order.maker] = balances[order.makerSellToken][order.maker].sub(makerGiveAmount);
     }
 }
