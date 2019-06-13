@@ -86,24 +86,4 @@ contract("WeiDex", function([owner, user]) {
       expect(result.toString()).to.be.eq(oldTakerFeeRate.toString());
     });
   });
-
-  context("Allow or Restrict method", async function() {
-    it("should update allowed/restricted methods", async function() {
-      await contract.allowOrRestrictMethod(
-        "0x6db281564fe9547306996d6f77552aebb6a1b3451dd77b0e3cd65337b6741ad2",
-        true,
-        { from: owner }
-      );
-    });
-
-    it("should fail when not owner", async function() {
-      await shouldFail.reverting(
-        contract.allowOrRestrictMethod(
-          "0x6db281564fe9547306996d6f77552aebb6a1b3451dd77b0e3cd65337b6741ad2",
-          false,
-          { from: user }
-        )
-      );
-    });
-  });
 });

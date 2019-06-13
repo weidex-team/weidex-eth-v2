@@ -91,7 +91,7 @@ contract("WeiDex", function([_, maker, taker]) {
     it("should fail on trade order", async function() {
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
-        "INVALID_ORDER"
+        "INVALID_TRADE"
       );
     });
   });

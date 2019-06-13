@@ -29,10 +29,6 @@ contract("WeiDex", function([_, maker, taker]) {
       token = await TokenContract.new();
       deposit = new Deposit(contract, token);
 
-      await contract.allowOrRestrictMethod(
-        "0x6db281564fe9547306996d6f77552aebb6a1b3451dd77b0e3cd65337b6741ad2",
-        true
-      );
       await deposit.depositEth(taker, ZERO_ADDRESS, "90");
       await deposit.depositTokens(maker, ZERO_ADDRESS, "2000");
 
@@ -66,7 +62,6 @@ contract("WeiDex", function([_, maker, taker]) {
       await contract.takeAllOrRevert(
         [firstOrder, secondOrder],
         [firstOrderSig, secondOrderSig],
-        "trade((uint256,uint256,uint256,uint256,uint256,address,address,address,address),bytes)",
         {
           from: taker
         }

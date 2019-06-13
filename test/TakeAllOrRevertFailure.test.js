@@ -46,31 +46,7 @@ contract("WeiDex", function([_, maker, taker]) {
         .div(invalidOrder[1]);
     });
 
-    methodArray.forEach(function(method) {
-      it(`should fail on disallowed method: ${method}`, async function() {
-        const validOrderHash = await contract.getHash(validOrder);
-        const invalidOrderHash = await contract.getHash(invalidOrder);
-        const validOrderSig = await signMessage(maker, validOrderHash);
-        const invalidOrderSig = await signMessage(maker, invalidOrderHash);
-        await shouldFail.reverting.withMessage(
-          contract.takeAllOrRevert(
-            [validOrder, invalidOrder],
-            [validOrderSig, invalidOrderSig],
-            method,
-            {
-              from: taker
-            }
-          ),
-          "INVALID_METHOD"
-        );
-      });
-    });
-
     it("should fail on invalid order", async function() {
-      await contract.allowOrRestrictMethod(
-        "0x6db281564fe9547306996d6f77552aebb6a1b3451dd77b0e3cd65337b6741ad2",
-        true
-      );
       const validOrderHash = await contract.getHash(validOrder);
       const invalidOrderHash = await contract.getHash(invalidOrder);
       const validOrderSig = await signMessage(maker, validOrderHash);
@@ -90,7 +66,6 @@ contract("WeiDex", function([_, maker, taker]) {
         contract.takeAllOrRevert(
           [validOrder, invalidOrder],
           [validOrderSig, invalidOrderSig],
-          "trade((uint256,uint256,uint256,uint256,uint256,address,address,address,address),bytes)",
           {
             from: taker
           }

@@ -134,7 +134,7 @@ contract("WeiDex", function([_, maker, taker]) {
       const invalidSignature = await signMessage(taker, orderHash);
       await shouldFail.reverting.withMessage(
         contract.trade(order, invalidSignature, { from: taker }),
-        "INVALID_SIGNER"
+        "INVALID_TRADE"
       );
     });
 
@@ -143,7 +143,7 @@ contract("WeiDex", function([_, maker, taker]) {
       expect(result["status"]).to.be.eq("5"); // fully filled status
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
-        "INVALID_ORDER"
+        "INVALID_TRADE"
       );
     });
   });

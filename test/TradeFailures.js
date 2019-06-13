@@ -53,7 +53,7 @@ contract("WeiDex", function([_, maker, taker]) {
 
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
-        "INVALID_ORDER"
+        "INVALID_TRADE"
       );
 
       await deposit.depositEth(taker, ZERO_ADDRESS, "10");
@@ -65,7 +65,7 @@ contract("WeiDex", function([_, maker, taker]) {
 
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
-        "INVALID_ORDER"
+        "INVALID_TRADE"
       );
 
       await deposit.depositTokens(maker, ZERO_ADDRESS, "200");
@@ -77,7 +77,7 @@ contract("WeiDex", function([_, maker, taker]) {
 
       await shouldFail.reverting.withMessage(
         contract.trade(order, signature, { from: taker }),
-        "INVALID_ORDER"
+        "INVALID_TRADE"
       );
     });
   });
