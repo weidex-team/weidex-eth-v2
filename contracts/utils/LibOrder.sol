@@ -31,7 +31,7 @@ contract LibOrder {
     }
 
     enum OrderStatus {
-        INVALID,
+        INVALID_SIGNER,
         INVALID_TAKER_AMOUNT,
         INVALID_MAKER_AMOUNT,
         FILLABLE,

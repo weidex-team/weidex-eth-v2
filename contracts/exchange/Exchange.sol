@@ -16,9 +16,11 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
       * @dev emitted when a trade is executed
       */
     event Trade(
-        address indexed makerAddress,        // Address that created the order   
+        address indexed makerAddress,        // Address that created the order
         address indexed takerAddress,        // Address that filled the order
         bytes32 indexed orderHash,           // Hash of the order
+        address makerFilledAsset,            // Address of assets filled for maker
+        address takerFilledAsset,            // Address of assets filled for taker
         uint256 makerFilledAmount,           // Amount of assets filled for maker
         uint256 takerFilledAmount,           // Amount of assets filled for taker
         uint256 takerFeePaid,                // Amount of fee paid by the taker
@@ -30,14 +32,14 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
       * @dev emitted when a cancel order is executed
       */
     event Cancel(
-        address indexed makerBuyToken,        // Address of asset being bought. 
+        address indexed makerBuyToken,        // Address of asset being bought.
         address makerSellToken,               // Address of asset being sold.
         address indexed maker,                // Address that created the order
         bytes32 indexed orderHash             // Hash of the order
     );
 
     /**
-      * @dev Compute the status of an order. 
+      * @dev Compute the status of an order.
       * Should be called before a contract execution is performet in order to not waste gas.
       * @return OrderStatus.FILLABLE if the order is valid for taking.
       * Note: See LibOrder.sol to see all statuses
@@ -92,12 +94,28 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
 
     /**
       * @dev Execute a trade based on the input order and signature.
+      * Reverts if order is not valid
       */
     function trade(
         Order memory order,
         bytes memory signature
     )
         public
+    {
+        bool result = _trade(order, signature);
+        require(result, "INVALID_TRADE");
+    }
+
+    /**
+      * @dev Execute a trade based on the input order and signature.
+      * If the order is valid returns true.
+      */
+    function _trade(
+        Order memory order,
+        bytes memory signature
+    )
+        internal
+        returns(bool)
     {
         order.taker = msg.sender;
 
@@ -109,7 +127,11 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
 
         OrderInfo memory orderInfo = getOrderInfo(takerReceivedAmount, order);
 
-        assertTakeOrder(orderInfo.hash, orderInfo.status, order.maker, signature);
+        uint8 status = assertTakeOrder(orderInfo.hash, orderInfo.status, order.maker, signature);
+
+        if(status != uint8(OrderStatus.FILLABLE)) {
+            return false;
+        }
 
         OrderFill memory orderFill = getOrderFillResult(takerReceivedAmount, order);
 
@@ -118,15 +140,19 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
         filled[orderInfo.hash] = filled[orderInfo.hash].add(order.takerSellAmount);
 
         emit Trade(
-            order.maker, 
-            order.taker, 
+            order.maker,
+            order.taker,
             orderInfo.hash,
-            orderFill.makerFillAmount, 
-            orderFill.takerFillAmount, 
-            orderFill.takerFeePaid, 
+            order.makerBuyToken,
+            order.makerSellToken,
+            orderFill.makerFillAmount,
+            orderFill.takerFillAmount,
+            orderFill.takerFeePaid,
             orderFill.makerFeeReceived,
             orderFill.referralFeeReceived
         );
+
+        return true;
     }
 
     /**
@@ -143,6 +169,11 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
         require(
             recover(orderHash, signature) == msg.sender,
             "INVALID_SIGNER"
+        );
+
+        require(
+            cancelled[orderHash] == false,
+            "ALREADY_CANCELLED"
         );
 
         cancelled[orderHash] = true;
@@ -171,7 +202,7 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
         internal
         view
         returns (OrderFill memory orderFill)
-    {       
+    {
         orderFill.takerFillAmount = takerReceivedAmount;
 
         orderFill.makerFillAmount = order.takerSellAmount;
@@ -179,13 +210,13 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
         // 0.2% == 0.2*10^16
         orderFill.takerFeePaid = getFeeAmount(
             takerReceivedAmount,
-            takerFeeRate 
+            takerFeeRate
         );
 
         // 50% of taker fee == 50*10^16
         orderFill.makerFeeReceived = getFeeAmount(
             orderFill.takerFeePaid,
-            makerFeeRate 
+            makerFeeRate
         );
 
         // 10% of taker fee == 10*10^16
@@ -212,16 +243,19 @@ contract Exchange is LibMath, LibOrder, LibSignatureValidator, ExchangeStorage {
     )
         internal
         pure
+        returns(uint8)
     {
-        require(
-            recover(orderHash, signature) == signer,
-            "INVALID_SIGNER"
-        );
+        uint8 result = uint8(OrderStatus.FILLABLE);
 
-        require(
-            status == uint8(OrderStatus.FILLABLE),
-            "INVALID_ORDER"
-        );
+        if(recover(orderHash, signature) != signer) {
+            result = uint8(OrderStatus.INVALID_SIGNER);
+        }
+
+        if(status != uint8(OrderStatus.FILLABLE)) {
+            result = status;
+        }
+
+        return status;
     }
 
     /**

@@ -62,18 +62,13 @@ contract ExchangeStorage is Ownable {
     mapping(bytes32 => uint256) internal filled;
 
     /**
-      * @dev map: orderHash -> isAllowed
-      */
-    mapping(bytes32 => bool) internal allowedMethods;
-
-    /**
       * @dev map: orderHash -> isCancelled
       */
     mapping(bytes32 => bool) internal cancelled;
 
     /**
       * @dev map: user -> userReferrer
-      */  
+      */
     mapping(address => address) internal referrals;
 
     /**
@@ -182,19 +177,6 @@ contract ExchangeStorage is Ownable {
     }
 
     /**
-      * @return allows/restricts method to be called via delegatecall
-      */
-    function allowOrRestrictMethod(
-        bytes32 methodId,
-        bool allowed
-    )
-        external
-        onlyOwner
-    {
-        allowedMethods[methodId] = allowed;
-    }
-
-    /**
       * @return set new rate for the maker fee received
       */
     function setMakerFeeRate(
@@ -204,7 +186,7 @@ contract ExchangeStorage is Ownable {
         onlyOwner
     {
         require(
-            newMakerFeeRate >= minMakerFeeRate && 
+            newMakerFeeRate >= minMakerFeeRate &&
             newMakerFeeRate <= maxMakerFeeRate,
             "INVALID_MAKER_FEE_RATE"
         );
@@ -221,7 +203,7 @@ contract ExchangeStorage is Ownable {
         onlyOwner
     {
         require(
-            newTakerFeeRate >= minTakerFeeRate && 
+            newTakerFeeRate >= minTakerFeeRate &&
             newTakerFeeRate <= maxTakerFeeRate,
             "INVALID_TAKER_FEE_RATE"
         );

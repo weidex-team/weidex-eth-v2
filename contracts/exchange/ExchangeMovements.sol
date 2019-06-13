@@ -52,7 +52,7 @@ contract ExchangeMovements is ExchangeStorage {
         address beneficiary,
         address referral
     )
-        external
+        public
         payable
     {
         uint256 value = amount;
@@ -88,7 +88,7 @@ contract ExchangeMovements is ExchangeStorage {
         address token,
         uint amount
     )
-        external
+        public
     {
         address payable user = msg.sender;
 

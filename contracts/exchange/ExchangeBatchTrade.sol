@@ -28,57 +28,28 @@ contract ExchangeBatchTrade is Exchange {
       */
     function takeAllOrRevert(
         Order[] memory orders,
-        bytes[] memory signatures,
-        string memory method
+        bytes[] memory signatures
     )
         public
     {
-        bytes32 methodHash = keccak256(abi.encodePacked(method));
-        
-        require(
-            allowedMethods[methodHash],
-            "INVALID_METHOD"
-        );
-
         for (uint256 index = 0; index < orders.length; index++) {
-            (bool success,) = address(this).delegatecall(
-                abi.encodeWithSignature(
-                    method,
-                    orders[index],
-                    signatures[index]
-                )
-            );
-            
-            require(success, "INVALID_TAKEALL");
+            bool result = _trade(orders[index], signatures[index]);
+            require(result, "INVALID_TAKEALL");
         }
     }
- 
+
     /**
       * @dev Execute multiple trades based on the input orders and signatures.
       * Note: does not revert if one or more trades fail.
-      */   
+      */
     function takeAllPossible(
         Order[] memory orders,
-        bytes[] memory signatures,
-        string memory method
+        bytes[] memory signatures
     )
         public
     {
-        bytes32 methodHash = keccak256(abi.encodePacked(method));
-        
-        require(
-            allowedMethods[methodHash],
-            "INVALID_METHOD"
-        );
-
         for (uint256 index = 0; index < orders.length; index++) {
-            address(this).delegatecall(
-                abi.encodeWithSignature(
-                    method,
-                    orders[index],
-                    signatures[index]
-                )
-            );
+            _trade(orders[index], signatures[index]);
         }
     }
 }
