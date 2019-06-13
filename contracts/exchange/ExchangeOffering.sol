@@ -90,7 +90,7 @@ contract ExchangeOffering is ExchangeStorage, LibCrowdsale {
         emit TokenPurchase(token, user, purchasedTokens, weiAmount);
     }
 
-    function burnTokensWhenFinished(address token) public 
+    function burnTokensWhenFinished(address token) public
     {
         require(
             isFinished(crowdsales[token].endBlock),
