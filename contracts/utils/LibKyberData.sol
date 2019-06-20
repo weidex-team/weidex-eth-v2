@@ -9,24 +9,4 @@ contract LibKyberData {
         address givenToken;
         address receivedToken;
     }
-
-
-    /**
-      * @dev Calculates the hash of a given and received token addresses.
-      */
-    function getHash(
-        address givenToken,
-        address receivedToken
-    )
-        internal
-        pure
-        returns (bytes32)
-    {
-        return keccak256(
-            abi.encodePacked(
-                givenToken,
-                receivedToken
-            )
-        );
-    }
 }

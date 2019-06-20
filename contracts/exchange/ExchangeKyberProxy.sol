@@ -43,7 +43,8 @@ contract ExchangeKyberProxy is Exchange, LibKyberData {
     function kyberSwap(
         uint256 givenAmount,
         address givenToken,
-        address receivedToken
+        address receivedToken,
+        bytes32 hash
     )
         public
         payable
@@ -67,8 +68,6 @@ contract ExchangeKyberProxy is Exchange, LibKyberData {
             feeAccount
         );
 
-        bytes32 hash = getHash(givenToken, receivedToken);
-
         emit Trade(
             address(kyberNetworkContract),
             taker,
@@ -91,7 +90,8 @@ contract ExchangeKyberProxy is Exchange, LibKyberData {
     function kyberTrade(
         uint256 givenAmount,
         address givenToken,
-        address receivedToken
+        address receivedToken,
+        bytes32 hash
     )
         public
     {
@@ -116,8 +116,6 @@ contract ExchangeKyberProxy is Exchange, LibKyberData {
         );
 
         balances[receivedToken][taker] = balances[receivedToken][taker].add(convertedAmount);
-
-        bytes32 hash = getHash(givenToken, receivedToken);
 
         emit Trade(
             address(kyberNetworkContract),
@@ -251,6 +249,30 @@ contract ExchangeKyberProxy is Exchange, LibKyberData {
         );
 
         return kyberData;
+    }
+
+    function getExpectedRateBatch(
+        address[] memory givenTokens,
+        address[] memory receivedTokens,
+        uint256[] memory givenAmounts
+    )
+        public
+        view
+        returns(uint256[] memory, uint256[] memory)
+    {
+        uint256 size = givenTokens.length;
+        uint256[] memory expectedRates = new uint256[](size);
+        uint256[] memory slippageRates = new uint256[](size);
+
+        for(uint256 index = 0; index < size; index++) {
+            (expectedRates[index], slippageRates[index]) = kyberNetworkContract.getExpectedRate(
+                givenTokens[index],
+                receivedTokens[index],
+                givenAmounts[index]
+            );
+        }
+
+       return (expectedRates, slippageRates);
     }
 
     /**
