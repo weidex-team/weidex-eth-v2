@@ -35,11 +35,6 @@ contract ExchangeStorage is Ownable {
     uint256 constant internal referralFeeRate = 100000000000000000;
 
     /**
-      * @dev The address where all exchange fees (0,08%) are kept.
-      * Node: multisig wallet
-      */
-    address constant internal feeAccount = address(0x0);
-    /**
       * @dev The amount of percentage the maker will receive from each taker fee.
       * Note: Initially: 50% = 50 * 10^16
       */
@@ -70,6 +65,12 @@ contract ExchangeStorage is Ownable {
       * @dev map: user -> userReferrer
       */
     mapping(address => address) internal referrals;
+
+    /**
+      * @dev The address where all exchange fees (0,08%) are kept.
+      * Node: multisig wallet
+      */
+    address public feeAccount;
 
     /**
       * @return return the balance of `token` for certain `user`
@@ -209,5 +210,17 @@ contract ExchangeStorage is Ownable {
         );
 
         takerFeeRate = newTakerFeeRate;
+    }
+
+    /**
+      * @return set new fee account
+      */
+    function setFeeAccount(
+        address newFeeAccount
+    )
+        external
+        onlyOwner
+    {
+        feeAccount = newFeeAccount;
     }
 }
