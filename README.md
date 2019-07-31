@@ -1,16 +1,3 @@
-# Table of contents
-
-* [Smart Contracts](smart-contracts/README.md)
-  * [Exchange.sol](smart-contracts/exchange.sol.md)
-  * [ExchangeBatchTrade.sol](smart-contracts/exchangebatchtrade.sol.md)
-  * [ExchangeKyberProxy.sol](smart-contracts/exchangekyberproxy.sol.md)
-  * [ExchangeMovements.sol](smart-contracts/exchangemovements.sol.md)
-  * [ExchangeOffering.sol](smart-contracts/exchangeoffering.sol.md)
-  * [ExchangeStorage.sol](smart-contracts/exchangestorage.sol.md)
-  * [ExchangeSwap.sol](smart-contracts/exchangeswap.sol.md)
-  * [ExchangeUpgradability.sol](smart-contracts/exchangeupgradability.sol.md)
-
-
 # Introduction
 
 ### What is weiDex?
@@ -28,4 +15,16 @@ WeiDex uses a numerous Ethereum Smart Contracts \(currently written in Solidity\
 Learn more here: [https://www.weidex.market/](https://www.weidex.market/),  [https://medium.com/@weidex](https://medium.com/@weidex)
 
 Now let's dive into the smart contracts!
+
+# Table of contents
+
+* [Smart Contracts](smart-contracts/README.md)
+  * [Exchange.sol](smart-contracts/exchange.sol.md)
+  * [ExchangeBatchTrade.sol](smart-contracts/exchangebatchtrade.sol.md)
+  * [ExchangeKyberProxy.sol](smart-contracts/exchangekyberproxy.sol.md)
+  * [ExchangeMovements.sol](smart-contracts/exchangemovements.sol.md)
+  * [ExchangeOffering.sol](smart-contracts/exchangeoffering.sol.md)
+  * [ExchangeStorage.sol](smart-contracts/exchangestorage.sol.md)
+  * [ExchangeSwap.sol](smart-contracts/exchangeswap.sol.md)
+  * [ExchangeUpgradability.sol](smart-contracts/exchangeupgradability.sol.md)
 
