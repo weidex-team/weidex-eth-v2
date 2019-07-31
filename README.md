@@ -16,9 +16,8 @@ Learn more here: [https://www.weidex.market/](https://www.weidex.market/),  [htt
 
 Now let's dive into the smart contracts!
 
-# Table of contents
+# Smart Contracts
 
-* [Smart Contracts](smart-contracts/README.md)
   * [Exchange.sol](smart-contracts/exchange.sol.md)
   * [ExchangeBatchTrade.sol](smart-contracts/exchangebatchtrade.sol.md)
   * [ExchangeKyberProxy.sol](smart-contracts/exchangekyberproxy.sol.md)
