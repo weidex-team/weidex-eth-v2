@@ -1,6 +1,5 @@
 # Table of contents
 
-* [Introduction](README.md)
 * [Smart Contracts](smart-contracts/README.md)
   * [Exchange.sol](smart-contracts/exchange.sol.md)
   * [ExchangeBatchTrade.sol](smart-contracts/exchangebatchtrade.sol.md)
